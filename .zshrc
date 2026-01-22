@@ -38,19 +38,20 @@ else
     alias ll='ls -al'
 fi
 
-# Use GNU CLI binaries over outdated OSX CLI binaries
+# Use brew binaries over outdated OSX CLI binaries
 if command -v brew &>/dev/null ; then
     BREW_PREFIX="$(brew --prefix)"
     if [[ -d "$BREW_PREFIX/opt/coreutils/libexec/gnubin" ]]; then
-        export PATH="$BREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
+        path=("$BREW_PREFIX/opt/coreutils/libexec/gnubin" $path)
     fi
     if [[ -d "$BREW_PREFIX/opt/findutils/libexec/gnubin" ]]; then
-        export PATH="$BREW_PREFIX/opt/findutils/libexec/gnubin:$PATH"
+        path=("$BREW_PREFIX/opt/findutils/libexec/gnubin" $path)
     fi
     if [[ -d "$BREW_PREFIX/opt/gnu-getopt/bin" ]]; then
-        export PATH="$BREW_PREFIX/opt/gnu-getopt/bin:$PATH"
+        path=("$BREW_PREFIX/opt/gnu-getopt/bin" $path)
     fi
     if [[ -d "$BREW_PREFIX/opt/python/libexec/bin" ]]; then
-        export PATH="$BREW_PREFIX/opt/python/libexec/bin:$PATH"
+        path=("$BREW_PREFIX/opt/python/libexec/bin" $path)
     fi
+    export PATH
 fi
