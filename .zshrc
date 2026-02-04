@@ -1,6 +1,10 @@
 export PROMPT="%n@%m %~ %# "
 
-autoload -Uz +X compinit && compinit
+# -> zsh compinit: insecure directories and files, run compaudit for list.
+# Because this configuration is run from users other than the primary user
+# (like sandvault-$USER), we don't want compinit to whine about file ownership
+# so use "compinit -u" to skip warnings.
+autoload -Uz +X compinit && compinit -u
 
 # Case insensitive tab completion
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
