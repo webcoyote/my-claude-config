@@ -1,0 +1,9 @@
+[diff]
+    tool = meld
+    algorithm = histogram
+    renameLimit = 999999
+[difftool]
+    prompt = false
+[merge]
+    tool = meld
+    renameLimit = 999999

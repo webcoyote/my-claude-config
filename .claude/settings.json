@@ -6,18 +6,6 @@
     "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": "true"
   },
   "includeCoAuthoredBy": false,
-  "permissions": {
-    "allow": [
-      "Read(./.env.example)",
-      "Read(./.env.sample)"
-    ],
-    "deny": [
-      "Read(./.env)",
-      "Read(./.env.*)",
-      "Read(./secrets/**)",
-      "Read(./config/credentials.json)"
-    ]
-  },
   "hooks": {
     "Notification": [
       {
@@ -47,7 +35,9 @@
     "command": "bash ~/.claude/statusline.sh"
   },
   "alwaysThinkingEnabled": false,
+  "skipDangerousModePermissionPrompt": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754086709267
-  }
+  },
+  "voiceEnabled": true
 }

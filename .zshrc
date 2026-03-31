@@ -1,10 +1,7 @@
-export PROMPT="%n@%m %~ %# "
-
-# -> zsh compinit: insecure directories and files, run compaudit for list.
-# Because this configuration is run from users other than the primary user
-# (like sandvault-$USER), we don't want compinit to whine about file ownership
-# so use "compinit -u" to skip warnings.
-autoload -Uz +X compinit && compinit -u
+##############
+# Zsh
+##############
+autoload -Uz +X compinit && compinit -i
 
 # Case insensitive tab completion
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
@@ -12,9 +9,8 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:
 # auto-fill the first viable candidate for tab completion
 setopt menucomplete
 
-# vi-editing on command line and for files
+# vi-editing on command line
 bindkey -v
-export EDITOR=vi
 
 # Fix zsh bug where tab completion hangs on git commands
 # https://superuser.com/a/459057
@@ -25,37 +21,8 @@ __git_files () {
 # Only allow unique entries in path
 typeset -U path
 
-# utilities
-command -v bat &>/dev/null && alias cat='bat --paging=never'
-command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
+# aliases for bash/zsh
+[[ -f "$HOME/.dotfiles/bash_aliases" ]] && source "$HOME/.dotfiles/bash_aliases"
 
-# ls
-if command -v eza &>/dev/null ; then
-    alias ls=eza
-    alias l='ls -l --git'
-    alias li='ls -l --git --git-ignore'
-    alias ll='ls -al --git'
-    alias lli='ls -al --git --git-ignore'
-    alias tree='ls -lT --git'
-else
-    alias l='ls -l'
-    alias ll='ls -al'
-fi
-
-# Use brew binaries over outdated OSX CLI binaries
-if command -v brew &>/dev/null ; then
-    BREW_PREFIX="$(brew --prefix)"
-    if [[ -d "$BREW_PREFIX/opt/coreutils/libexec/gnubin" ]]; then
-        path=("$BREW_PREFIX/opt/coreutils/libexec/gnubin" $path)
-    fi
-    if [[ -d "$BREW_PREFIX/opt/findutils/libexec/gnubin" ]]; then
-        path=("$BREW_PREFIX/opt/findutils/libexec/gnubin" $path)
-    fi
-    if [[ -d "$BREW_PREFIX/opt/gnu-getopt/bin" ]]; then
-        path=("$BREW_PREFIX/opt/gnu-getopt/bin" $path)
-    fi
-    if [[ -d "$BREW_PREFIX/opt/python/libexec/bin" ]]; then
-        path=("$BREW_PREFIX/opt/python/libexec/bin" $path)
-    fi
-    export PATH
-fi
+# NPM completions
+[[ -f "$HOME/.dotfiles/npm_completions" ]] && source "$HOME/.dotfiles/npm_completions"
