@@ -1,0 +1,216 @@
+#!/usr/bin/env bash
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    echo >&2 "ERROR: This script must be sourced:"
+    echo >&2 "  source $(basename "${BASH_SOURCE[0]}")"
+    exit 1
+fi
+
+export PATH="$PATH:$HOME/.cargo/bin:$HOME/go/bin:$HOME/.gem/bin:$HOME/flutter/bin"
+
+# Use GNU CLI binaries over outdated OSX CLI binaries
+if command -v brew &>/dev/null ; then
+    BREW_PREFIX="$(brew --prefix)"
+    if [[ -d "$BREW_PREFIX/opt/coreutils/libexec/gnubin" ]]; then
+        export PATH="$BREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
+    fi
+    if [[ -d "$BREW_PREFIX/opt/findutils/libexec/gnubin" ]]; then
+        export PATH="$BREW_PREFIX/opt/findutils/libexec/gnubin:$PATH"
+    fi
+    if [[ -d "$BREW_PREFIX/opt/gnu-getopt/bin" ]]; then
+        export PATH="$BREW_PREFIX/opt/gnu-getopt/bin:$PATH"
+    fi
+    if [[ -d "$BREW_PREFIX/opt/python/libexec/bin" ]]; then
+        export PATH="$BREW_PREFIX/opt/python/libexec/bin:$PATH"
+    fi
+fi
+
+# user bin directories
+export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
+
+# The only reliably cross-platform editor
+export EDITOR=vi
+
+# No dotnet spying
+DOTNET_CLI_TELEMETRY_OPTOUT=1
+
+# Shell history
+export HISTCONTROL=ignoredups:erasedups:ignorespace
+export HISTIGNORE="ls:ll:exit:gst:pu:po:pushd:popd"
+
+# GPG for signing git commits
+export GPG_TTY=$(tty)
+
+# Make the backspace key work in ghostty
+if [[ "$TERM_PROGRAM" == "ghostty" ]]; then
+    export TERM=xterm-256color
+fi
+
+# misc aliases
+alias clod="/Users/Shared/sv-pat/personal/sandbox/clodpod/clod --no-graphics"
+#alias sv="/Users/Shared/sv-pat/personal/sandbox/sandvault/sv"
+alias zg='zoxide --basedir "$(git rev-parse --show-toplevel)"'
+alias c=claude
+alias co=codex
+alias d=docker
+alias p=podman
+alias less='less -R'
+
+# Search history
+h () {
+    pattern="${1:-.}"
+    atuin history list | rg -i "$pattern"
+}
+
+mcd() {
+  mkdir -p "$1"
+  cd "$1"
+}
+rcd() {
+    local dir="$PWD"
+    cd ..
+    rmdir "$dir"
+}
+
+# cd
+alias po=popd
+alias pu=pushd
+alias cd=pushd
+
+# vim
+alias vi='nvim'
+alias vim='nvim'
+
+# utilities
+command -v bat   &>/dev/null && alias cat='bat --paging=never'
+
+# ls
+if command -v eza &>/dev/null ; then
+    alias ls=eza
+    alias l='ls -l --git'
+    alias li='ls -l --git --git-ignore'
+    alias ll='ls -al --git'
+    alias lli='ls -al --git --git-ignore'
+    alias tree='ls -lT --git'
+else
+    alias l='ls -l'
+    alias ll='ls -al'
+fi
+
+# git
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    : # do nothing; the files below don't work
+elif [[ -f "/usr/share/bash-completion/completions/git" ]]; then
+    source "/usr/share/bash-completion/completions/git"
+elif [[ -f "$HOME/completions/git" ]]; then
+    # git-bash doesn't have the above git completions file so I copied it from Linux
+    source "$HOME/completions/git"
+fi
+
+# Git aliases
+alias ga='git add'
+alias gb='git branch'
+alias ggc='git -c commit.gpgsign=false commit -v'
+alias gco='git checkout'
+alias gpp='git pull --prune'
+alias gst='git status -sb | less -RF'
+alias gl='git lola'
+alias gcp='git cherry-pick'
+alias gcm='git commit'
+alias gcmu='git -c commit.gpgsign=false commit'
+
+## Git diff aliases
+# https://stackoverflow.com/a/41730200
+alias gt='git difftool --diff-filter=M'
+alias gts='git difftool --diff-filter=M --staged'
+alias gta='git difftool'
+alias gtsa='git difftool --staged'
+alias gd='git diff'
+alias gds='git diff --staged'
+
+# Git completion for aliases
+if type -t __git_complete >&/dev/null ; then
+    __git_complete g __git_main
+    __git_complete gb _git_branch
+    __git_complete gco _git_checkout
+    __git_complete gt _git_difftool
+    __git_complete gts _git_difftool
+    __git_complete gd _git_diff
+    __git_complete gds _git_diff
+    __git_complete tig _git_branch
+fi
+
+# Configure shell history, shell jumping, shell prompt
+[[ "$SHELL" == "/bin/zsh" ]] && SHELLNAME=zsh || SHELLNAME=bash
+command -v atuin    &>/dev/null && eval "$(atuin    init "$SHELLNAME")"
+command -v zoxide   &>/dev/null && eval "$(zoxide   init "$SHELLNAME")"
+command -v starship &>/dev/null && eval "$(starship init "$SHELLNAME")"
+
+# Per-directory environment variables
+if command -v direnv &>/dev/null ; then
+    case "$OSTYPE" in
+        msys*|cygwin*)
+            # Hackish way to 'fix' path mangling
+            # https://github.com/direnv/direnv/issues/343#issuecomment-398868227
+            PRECMD="$HOME/bin/fix-windows-path.sh"
+            if [[ $"SHELL" == "/bin/zsh" ]] && [[ -f "$PRECMD" ]]; then
+                precmd() { source "$PRECMD" ; }
+            fi
+        ;;
+    esac
+    eval "$(direnv hook "$SHELLNAME")"
+fi
+
+# fzf: Ctrl-R replacement for Bash
+# https://github.com/junegunn/
+# Ctrl-R: search histroy
+# Ctrl-T: search files
+# Alt-C:  change directory
+if command -v fzf &>/dev/null ; then
+    export FZF_DEFAULT_OPTS='--height 80% --layout=reverse --border'
+    [[ -f "$HOME/.fzf.sh" ]] && source "$HOME/.fzf.zsh"
+
+    # https://news.ycombinator.com/item?id=32107654
+    function preview_file() {
+        fzf --preview='less {}' --bind shift-up:preview-page-up,shift-down:preview-page-down
+    }
+    alias pf="preview_file #"
+
+    # https://news.ycombinator.com/item?id=32109120
+    function preview_git_commits () {
+        git log --oneline --decorate --color | \
+            fzf --ansi --preview 'git show $(echo {} | cut -d" " -f1)' \
+            --bind shift-up:preview-page-up,shift-down:preview-page-down
+    }
+    alias pg=preview_git_commits
+fi
+
+# If `fd` is installed then replace Ctrl-T; this is much faster
+if command -v fd &>/dev/null ; then
+  export FZF_DEFAULT_COMMAND='fd --type file'
+  export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+fi
+
+
+##############
+# SSH
+##############
+# Avoid password prompt *every* *single* *time* for ssh
+# [[ -f "$HOME/.dotfiles/ssh-agent" ]] && source "$HOME/.dotfiles/ssh-agent"
+
+
+
+# Safety
+set -o noclobber
+alias cp='cp -i'
+alias mv='mv -i'
+
+
+##############
+# My stuff
+##############
+# For my iOS app build scripts
+export DEVICE_NAME=P13
+
+# For `tree-me`
+export WORKTREE_ROOT="/Users/Shared/sv-pat/worktrees"
