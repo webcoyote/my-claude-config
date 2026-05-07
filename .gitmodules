@@ -1,0 +1,3 @@
+[submodule "git-multi-hook"]
+	path = git-multi-hook
+	url = https://github.com/webcoyote/git-multi-hook
