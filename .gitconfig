@@ -38,7 +38,7 @@
 [push]
 	default = current
 [commit]
-	gpgsign = true
+	gpgsign = false
 [submodule]
 	recurse = true
 [rebase]
@@ -91,8 +91,6 @@
 [delta]
 	light = false	  # true if you're in a terminal with a light background color
 	navigate = true	# use n and N to move between diff sections
-[safe]
-	directory = /Users/Shared/sv-pat/*
-[hook "pre-commit"]
+[hook "multi-pre-commit"]
 	event = pre-commit
 	command = /Users/Shared/sv-pat/user/git-multi-hook/hooks/pre-commit

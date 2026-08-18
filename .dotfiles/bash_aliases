@@ -208,9 +208,10 @@ fi
 
 
 # Safety
-set -o noclobber
-alias cp='cp -i'
-alias mv='mv -i'
+## but not for sandvault
+#set -o noclobber
+#alias cp='cp -i'
+#alias mv='mv -i'
 
 
 ##############
