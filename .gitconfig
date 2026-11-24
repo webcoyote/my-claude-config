@@ -93,4 +93,4 @@
 	navigate = true	# use n and N to move between diff sections
 [hook "multi-pre-commit"]
 	event = pre-commit
-	command = /Users/Shared/sv-pat/user/git-multi-hook/hooks/pre-commit
+	command = ~/git-multi-hook/hooks/pre-commit
