@@ -6,6 +6,10 @@
     "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": "true"
   },
   "includeCoAuthoredBy": false,
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "hooks": {
     "Notification": [
       {
